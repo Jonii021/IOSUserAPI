@@ -8,51 +8,100 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var users : Array<User>? = nil
+    @State var users: Array<User>? = nil
+    @State var selectedTab = 0
+    @State var search = ""
     var body: some View {
         
         VStack() {
-            Text("Star Wars API")
-                .font(.title)
-                .fontWeight(.bold)
             
-            if (users != nil) {
-                NavigationStack() {
-                    List {
-                        ForEach (users!, id: \.id) { user in
-                            VStack {
-                                HStack {
-                                    //                                    AsyncImage(url: URL(string: user.image!))
-                                    
-                                    
-                                    VStack {
-                                        Text("\(user.firstName!) \(user.lastName!)")
-                                        Text("\(user.phone!)")
-                                    }
-                                    .padding(.leading, 60.0)
-                                    
-                                    
-                                    
-                                }
-                                
-                            }
-                        }
-                    }
-                }
-            }
             
             
             Spacer()
             
-            Button("Fetch") {
-                getUsers()
+            TabView(selection:$selectedTab) {
+                VStack() {
+                    Text("User list")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    
+                    if (users != nil) {
+                        
+                        NavigationStack() {
+                            List {
+                                TextField("Search", text: $search){
+                                    if ($search.wrappedValue.isEmpty){
+                                        getUsers()
+                                    }
+                                    else {
+                                        getUsers(url: "https://dummyjson.com/users/search?q=\($search.wrappedValue)")
+                                    }
+                                }
+                                
+                                    .padding(.leading, 20)
+                                ForEach (users!, id: \.id) { user in
+                                    VStack {
+                                        HStack() {
+                                            if (user.image != nil) {
+                                                AsyncImage(
+                                                    url: URL( string: user.image!),
+                                                    content: { image in
+                                                        image.resizable()
+                                                             .aspectRatio(contentMode: .fit)
+                                                             .frame(maxWidth: 50, maxHeight: 50)
+                                                    },
+                                                    placeholder: {
+                                                        ProgressView()
+                                                    })
+                                            } else {
+                                                Image(systemName: "person")
+                                                    .aspectRatio(contentMode: .fit)
+                                                    .frame(maxWidth: 50, maxHeight: 50)
+
+                                            }
+
+                                            
+                                            
+                                            VStack(alignment: .leading) {
+                                                Text("\(user.firstName!) \(user.lastName!)")
+                                                    .padding(.bottom, 4)
+                                                Text("\(user.phone!)")
+                                                    
+                                            }
+                                            .padding(.leading, 10.0)
+                                            
+                                        }
+                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .onAppear(){
+                    getUsers()
+                }
+                .tabItem({
+                    Text("Person list")
+                    Image(systemName: "person")
+                })
+                .tag(0)
+                VStack {
+                    AddUser()  
+                }
+                .tabItem({
+                    Text("Add person")
+                    Image(systemName: "person.fill.badge.plus")
+                })
+                .tag(1)
             }
             
         }
     }
     // function to connect and parse json
-    func getUsers() {
-        let myURL = URL(string: "https://dummyjson.com/users")!
+    func getUsers(url: String = "https://dummyjson.com/users") {
+        print(url)
+        let myURL = URL(string: url)!
         let httpTask = URLSession.shared.dataTask(with: myURL) {
             (optionalData, response, error) in
             let data = String(data: optionalData!, encoding: .utf8)!
