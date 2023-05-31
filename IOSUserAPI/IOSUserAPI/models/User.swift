@@ -6,7 +6,9 @@
 //
 
 import Foundation
-
+/**
+ User model for json result
+ */
 struct User: Decodable {
     let id: Int?
     let firstName: String?

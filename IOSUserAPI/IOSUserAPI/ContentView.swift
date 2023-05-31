@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
+    /**
+     users holds users if getUsers() is called
+     */
     @State var users: Array<User>? = nil
     @State var selectedTab = 0
     @State var search = ""
@@ -98,9 +101,14 @@ struct ContentView: View {
             
         }
     }
-    // function to connect and parse json
+    /**
+     function to connect and parse json
+     sets users as result of parse
+     - parameters:
+        - url: automatically https://dummyjson.com/users unless parameter is set differently in function call
+     */
     func getUsers(url: String = "https://dummyjson.com/users") {
-        print(url)
+        //print(url)
         let myURL = URL(string: url)!
         let httpTask = URLSession.shared.dataTask(with: myURL) {
             (optionalData, response, error) in
@@ -126,8 +134,8 @@ struct ContentView: View {
 }
 
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}
